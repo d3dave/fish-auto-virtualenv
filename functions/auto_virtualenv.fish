@@ -32,7 +32,7 @@ function auto_virtualenv
   # No virtualenv here. If none is active this is ok, otherwise check if it should be deactivated.
   # We keep it active only if it's an ancestor of the current directory.
   if set --query VIRTUAL_ENV
-    if string match "$active_dir/*" "$real_pwd"
+    if string match "$active_dir/*" "$real_pwd" >/dev/null
       return
     else
       deactivate
