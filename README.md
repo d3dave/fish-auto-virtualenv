@@ -2,7 +2,7 @@ A [fish](https://fishshell.com) plugin to automatically (de)activate virtualenv 
 directory.
 
 The variable `auto_virtualenv_dirs` is a list of directory names to try when looking for an existing
-virtualenv directory. The default value is only `.venv`.
+virtualenv directory. The default list has `.venv` and `venv`.
 
 ## Install
 
