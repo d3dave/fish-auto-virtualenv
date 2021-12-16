@@ -1,45 +1,18 @@
-set --global auto_virtualenv_dirs '.venv'
-
-function _auto_virtualenv_dirname --argument-names path
-  set --local parts (string split --right --max 1 / $path)
-  echo $parts[1]
+function _auto_virtualenv_install --on-event auto-virtualenv_install
+  set --query auto_virtualenv_dirs || set --universal auto_virtualenv_dirs '.venv' 'venv'
+  status is-interactive && auto_virtualenv
 end
 
-function auto_virtualenv --on-variable PWD --description "auto virtualenv"
-  set --local real_pwd (realpath $PWD)
-  set --local active_dir ""
-
-  if set --query VIRTUAL_ENV
-    set active_dir (_auto_virtualenv_dirname "$VIRTUAL_ENV")
-    if test "$active_dir" = "$real_pwd"
-      # The virtualenv in the current directory is already active
-      return
-    end
-  end
-
-  # Look for a new virtualenv
-  for name in $auto_virtualenv_dirs
-    set --local activate "$name/bin/activate.fish"
-    if test -e "$activate"
-      # There's a virtualenv here, activate it (after deactivating any current virtualenv).
-      if set --query VIRTUAL_ENV
-        deactivate
-      end
-
-      source "$activate"
-      return
-    end
-  end
-
-  # No virtualenv here. If none is active this is ok, otherwise check if it should be deactivated.
-  # We keep it active only if it's an ancestor of the current directory.
-  if set --query VIRTUAL_ENV
-    if string match "$active_dir/*" "$real_pwd"
-      return
-    else
-      deactivate
-    end
-  end
+function _auto_virtualenv_update --on-event auto-virtualenv_update
+  status is-interactive && auto_virtualenv
 end
 
-auto_virtualenv
+function _auto_virtualenv_uninstall --on-event auto-virtualenv_uninstall
+  set --erase auto_virtualenv_dirs
+end
+
+if status is-interactive
+  function _auto_virtualenv_on_pwd --on-variable PWD
+    auto_virtualenv
+  end
+end
